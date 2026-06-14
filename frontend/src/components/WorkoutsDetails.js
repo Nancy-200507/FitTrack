@@ -13,7 +13,7 @@ const WorkoutsDetails = ({workout, setWorkouts}) =>{
             }
 
         })
-        const json = await response.json()
+       await response.json()
         if(response.ok){
             setWorkouts(prev =>
                 prev.filter(w => w._id !== workout._id)
