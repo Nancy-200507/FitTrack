@@ -12,7 +12,10 @@ const app = express();
 
 // Allow requests from your Vercel frontend
 app.use(cors({
-  origin: 'https://fit-track-puce.vercel.app'
+  origin: [
+    'http://localhost:3000',
+    'https://fit-track-puce.vercel.app'
+  ]
 }));
 
 // Middleware
