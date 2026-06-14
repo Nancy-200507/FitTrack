@@ -7,21 +7,25 @@ const mongoose = require('mongoose');
 const workoutRoutes = require('./routes/workouts');
 const userRoutes = require('./routes/user');
 
-// Express app
 const app = express();
 
-// Allow requests from your Vercel frontend
+// CORS FIX
 app.use(cors({
   origin: [
     'http://localhost:3000',
+    'http://localhost:5173',
     'https://fit-track-puce.vercel.app'
-  ]
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
 }));
+
+app.options('*', cors());
 
 // Middleware
 app.use(express.json());
 
-// Log every request
+// Logger
 app.use((req, res, next) => {
   console.log(req.path, req.method);
   next();
@@ -31,18 +35,15 @@ app.use((req, res, next) => {
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/user', userRoutes);
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-  serverSelectionTimeoutMS: 5000
-})
+// MongoDB + Server
+const PORT = process.env.PORT || 4000;
+
+mongoose.connect(process.env.MONGO_URI)
 .then(() => {
-  // Start server
-  app.listen(process.env.PORT, () => {
-    console.log('MongoDB connected and listening on port', process.env.PORT);
+  app.listen(PORT, () => {
+    console.log('MongoDB connected and running on', PORT);
   });
 })
-.catch((error) => {
-  console.error("MongoDB Error:");
-  console.error(error);
-  console.error(error.message);
+.catch((err) => {
+  console.error('MongoDB Error:', err);
 });
