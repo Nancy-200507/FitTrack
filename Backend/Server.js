@@ -1,40 +1,45 @@
-require('dotenv').config()
-const express = require('express')
-const workoutRoutes = require('./routes/workouts')
-const mongoose = require('mongoose')
-const userRoutes = require('./routes/user')
+require('dotenv').config();
 
-// express app
-const app = express()
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
 
-// middleware it is smthg which give response to a req   here next is used to render other req below it
-app.use(express.json()) // this is used in patch and post as they input some data to post or patch req alone cannot andle it
+const workoutRoutes = require('./routes/workouts');
+const userRoutes = require('./routes/user');
 
-app.use('/', (req,res,next) => {
- console.log(req.path,req.method)
- next()
-})
+// Express app
+const app = express();
 
-// routes
-app.use('/api/workouts',workoutRoutes)
-app.use('/api/user',userRoutes)
+// Allow requests from your Vercel frontend
+app.use(cors({
+  origin: 'https://fit-track-puce.vercel.app'
+}));
 
+// Middleware
+app.use(express.json());
 
-//connect to db
+// Log every request
+app.use((req, res, next) => {
+  console.log(req.path, req.method);
+  next();
+});
+
+// Routes
+app.use('/api/workouts', workoutRoutes);
+app.use('/api/user', userRoutes);
+
+// Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
-    serverSelectionTimeoutMS: 5000
-  })
-.then( () => {
-    
-// listening req
-app.listen(process.env.PORT, () => {
-    console.log('mongo db connected and listening on port',process.env.PORT)
+  serverSelectionTimeoutMS: 5000
 })
+.then(() => {
+  // Start server
+  app.listen(process.env.PORT, () => {
+    console.log('MongoDB connected and listening on port', process.env.PORT);
+  });
 })
 .catch((error) => {
-    console.error("MongoDB Error:");
-    console.error(error);
-    console.error(error.message);
-  })
-
-
+  console.error("MongoDB Error:");
+  console.error(error);
+  console.error(error.message);
+});
