@@ -11,29 +11,43 @@ export const useLogin = () => {
     setIsLoading(true);
     setError(null);
 
-    const response = await fetch("/api/user/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetch(
+        "https://fittrack-s4zk.onrender.com/api/user/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
-    const json = await response.json();
+      // ✅ SAFE: read as text first
+      const text = await response.text();
 
-    if (!response.ok) {
-      setError(json.error);
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (err) {
+        throw new Error("Server response is not valid JSON");
+      }
+
+      // ❌ handle backend errors properly
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // ✅ success
+      localStorage.setItem("user", JSON.stringify(data));
+      login(data);
+
+    } catch (err) {
+      console.error("Login error:", err.message);
+      setError(err.message);
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    // Save user in local storage
-    localStorage.setItem("user", JSON.stringify(json));
-
-    // Update context
-    login(json);
-
-    setIsLoading(false);
   };
 
   return { loginUser, isLoading, error };
