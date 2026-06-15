@@ -23,28 +23,30 @@ export const useLogin = () => {
         }
       );
 
-      // ✅ SAFE: read as text first
       const text = await response.text();
+
+      if (!text) {
+        throw new Error("Empty server response");
+      }
 
       let data;
       try {
         data = JSON.parse(text);
-      } catch (err) {
-        throw new Error("Server response is not valid JSON");
+      } catch {
+        throw new Error("Invalid server response");
       }
 
-      // ❌ handle backend errors properly
       if (!response.ok) {
         throw new Error(data.error || "Login failed");
       }
 
-      // ✅ success
       localStorage.setItem("user", JSON.stringify(data));
       login(data);
 
     } catch (err) {
       console.error("Login error:", err.message);
       setError(err.message);
+
     } finally {
       setIsLoading(false);
     }
