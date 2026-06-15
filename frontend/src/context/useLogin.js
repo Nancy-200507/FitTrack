@@ -12,6 +12,7 @@ export const useLogin = () => {
     setError(null);
 
     try {
+      console.log("Login URL:", "https://fittrack-s4zk.onrender.com/api/user/login");
       const response = await fetch(
         "https://fittrack-s4zk.onrender.com/api/user/login",
         {
